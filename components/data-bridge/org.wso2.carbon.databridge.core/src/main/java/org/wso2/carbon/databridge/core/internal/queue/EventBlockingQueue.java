@@ -47,6 +47,12 @@ public class EventBlockingQueue extends ArrayBlockingQueue<EventComposite> {
     public synchronized void put(EventComposite eventComposite) {
         eventComposite.setSize(DataBridgeUtils.getSize(eventComposite));
         currentEventCompositeSize = eventComposite.getSize();
+        if (currentEventCompositeSize >= maxSize) {
+            log.warn("Dropping received events. Because Received event size '" + currentEventCompositeSize + "' is " +
+                    "too large compared with the maximum event size is " + "'" + maxSize + "'" + ".Please check the " +
+                    "data-bridge configuration");
+            return;
+        }
         if (currentSize.get() >= maxSize) {
             try {
                 semaphore.acquire();
